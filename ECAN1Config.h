@@ -1,4 +1,3 @@
-
 #include "ECAN1Drv.h"
 
 /* CAN Baud Rate Configuration 		*/

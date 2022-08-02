@@ -18,6 +18,7 @@ void dma0init(void){
 	 DMA0REQ=0x0046;	/* ECAN 1 Transmit */
 	 DMA0STA=  __builtin_dmaoffset(ecan1msgBuf);	
 	 DMA0CONbits.CHEN=1;
+	 
 }
 
 
@@ -31,25 +32,25 @@ void dma2init(void){
 	 DMA2REQ=0x0022;	/* ECAN 1 Receive */
 	 DMA2STA= __builtin_dmaoffset(ecan1msgBuf);	
 	 DMA2CONbits.CHEN=1;
+	 
 }
 
 
 
-void ecan1ClkInit(void)
-{
+void ecan1ClkInit(void){
 
-    // FCAN is selected to be FCY
-    // FCAN = FCY = 40MHz 
+/* FCAN is selected to be FCY
+/* FCAN = FCY = 40MHz */
 	C1CTRL1bits.CANCKS = 0x1;
 
-    /*
-    Bit Time = (Sync Segment + Propagation Delay + Phase Segment 1 + Phase Segment 2)=20*TQ
-    Phase Segment 1 = 8TQ
-    Phase Segment 2 = 6Tq
-    Propagation Delay = 5Tq
-    Sync Segment = 1TQ
-    CiCFG1<BRP> =(FCAN /(2 ?N?FBAUD))? 1
-    */
+/*
+Bit Time = (Sync Segment + Propagation Delay + Phase Segment 1 + Phase Segment 2)=20*TQ
+Phase Segment 1 = 8TQ
+Phase Segment 2 = 6Tq
+Propagation Delay = 5Tq
+Sync Segment = 1TQ
+CiCFG1<BRP> =(FCAN /(2 ?N?FBAUD))? 1
+*/
 
 	/* Synchronization Jump Width set to 4 TQ */
 	C1CFG1bits.SJW = 0x3;
@@ -67,13 +68,16 @@ void ecan1ClkInit(void)
 	C1CFG2bits.PRSEG = 0x4;
 	/* Bus line is sampled three times at the sample point */
 	C1CFG2bits.SAM = 0x1;
+
+
+
 }
 
 
 
-void ecan1Init(void)
-{
-    /* Request Configuration Mode */
+void ecan1Init(void){
+
+/* Request Configuration Mode */
 	C1CTRL1bits.REQOP=4;
 	while(C1CTRL1bits.OPMODE!=4);
 
@@ -82,7 +86,7 @@ void ecan1Init(void)
 	C1FCTRLbits.FSA=0b01000;		/* FIFO Starts at Message Buffer 8 */
 	C1FCTRLbits.DMABS=0b110;		/* 32 CAN Message Buffers in DMA RAM */
 	
-    /*	Filter Configuration
+/*	Filter Configuration
 
 	ecan1WriteRxAcptFilter(int n, long identifier, unsigned int exide,unsigned int bufPnt,unsigned int maskSel)
 
@@ -101,12 +105,12 @@ void ecan1Init(void)
 	maskSel = 2	->	Acceptance Mask 2 register contains mask
 	maskSel = 3	->	No Mask Selection
 	
-    */
+*/
 
 	ecan1WriteRxAcptFilter(1,0x1FFEFFFF,1,15,0);
 
 
-    /*	Mask Configuration
+/*	Mask Configuration
 
 	ecan1WriteRxAcptMask(int m, long identifierMask, unsigned int mide, unsigned int exide)
 
@@ -120,16 +124,16 @@ void ecan1Init(void)
 	exide = 0 -> Match messages with standard identifier addresses 
 	exide = 1 -> Match messages with extended identifier addresses 
 	
-    */
+*/
 
 	ecan1WriteRxAcptMask(1,0x1FFFFFFF,1,1);
 	
 
-    // Enter Normal Mode 
+/* Enter Normal Mode */
 	C1CTRL1bits.REQOP=0;
 	while(C1CTRL1bits.OPMODE!=0);
 	
-    // ECAN transmit/receive message control
+/* ECAN transmit/receive message control */
 
 	C1RXFUL1=C1RXFUL2=C1RXOVF1=C1RXOVF2=0x0000;
 	C1TR01CONbits.TXEN0=1;			/* ECAN1, Buffer 0 is a Transmit Buffer */
@@ -139,10 +143,12 @@ void ecan1Init(void)
 	C1TR45CONbits.TXEN4=1;			/* ECAN1, Buffer 0 is a Transmit Buffer */
 	C1TR45CONbits.TXEN5=1;			/* ECAN1, Buffer 0 is a Transmit Buffer */
 
+
 	C1TR01CONbits.TX0PRI=0b11; 		/* Message Buffer 0 Priority Level */
 	C1TR01CONbits.TX1PRI=0b11; 		/* Message Buffer 0 Priority Level */
 	C1TR23CONbits.TX2PRI=0b11; 		/* Message Buffer 0 Priority Level */
 	C1TR23CONbits.TX3PRI=0b11; 		/* Message Buffer 0 Priority Level */
 	C1TR45CONbits.TX4PRI=0b11; 		/* Message Buffer 0 Priority Level */
 	C1TR45CONbits.TX5PRI=0b11; 		/* Message Buffer 0 Priority Level */
+
 }
